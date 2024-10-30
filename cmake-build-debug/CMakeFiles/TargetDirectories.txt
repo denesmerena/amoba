@@ -1,0 +1,3 @@
+D:/clion/amoba/cmake-build-debug/CMakeFiles/amoba.dir
+D:/clion/amoba/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/clion/amoba/cmake-build-debug/CMakeFiles/rebuild_cache.dir
