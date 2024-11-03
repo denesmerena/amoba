@@ -18,7 +18,7 @@ char** tablaInicializalas(const char meret) {
 
 void jelBeir(char** tabla, const char meret, const char oszlop, const char sor, const char jel) {
     if (tabla == NULL) {
-        printf("Inicailzalatlan tabla");
+        printf("Inicialzalatlan tabla");
         return;
     }
     if (oszlop <= meret  && sor <= meret && (jel == 'X' || jel == 'O')) {
@@ -26,11 +26,11 @@ void jelBeir(char** tabla, const char meret, const char oszlop, const char sor, 
         printf("\nJel regisztralva: %c: %d %d\n", jel, oszlop, sor);
         return;
     }
-    if (oszlop <= meret  && sor <= meret && !(jel == 'X' || jel == 'O')) {
+    if (oszlop <= meret  && sor <= meret) {
         printf("\nRossz jel\n");
         return;
     }
-    if (!(oszlop <= meret  && sor <= meret) && (jel == 'X' || jel == 'O')) {
+    if (jel == 'X' || jel == 'O') {
         printf("\nRossz hely\n");
         return;
     }
@@ -71,64 +71,38 @@ char nyeroMennyiseg(const char meret) {
     }
 }
 
-bool oszlopNyer(char** tabla, const char meret, const char sor, const char oszlop, char szamolo, const char jel) {
+bool nyerEllenorzes(char** tabla, const char meret, char sor, char oszlop, char szamolo, const char jel, const char dSor, const char dOszlop) {
     if (szamolo == 0 && tabla[sor][oszlop] == jel && jel != '0')
         return true;
     if (szamolo == 0)
         return false;
-    if (sor < meret - 1 && tabla[sor][oszlop] == jel && jel != '0') {
-        return oszlopNyer(tabla, meret, sor + 1, oszlop, szamolo - 1, jel);
-    } else
-        return false;
-}
-bool sorNyer(char** tabla, const char meret, const char sor, const char oszlop, char szamolo, const char jel) {
-    if (szamolo == 0 && tabla[sor][oszlop] == jel && jel != '0')
-        return true;
-    if (szamolo == 0)
-        return false;
-    if (oszlop < meret - 1 && tabla[sor][oszlop] == jel && jel != '0') {
-        return sorNyer(tabla, meret, sor , oszlop + 1, szamolo - 1, jel);
-    } else
-        return false;
-}
-bool keresztJobbNyer(char** tabla, const char meret, const char sor, const char oszlop, char szamolo, const char jel) {
-    if (szamolo == 0 && tabla[sor][oszlop] == jel && jel != '0')
-        return true;
-    if (szamolo == 0)
-        return false;
-    if (oszlop < meret - 1 && sor < meret -1 && tabla[sor][oszlop] == jel && jel != '0') {
-        return keresztJobbNyer(tabla, meret, sor + 1 , oszlop + 1, szamolo - 1, jel);
-    } else
-        return false;
-}
-bool keresztBalNyer(char** tabla, const char meret, const char sor, const char oszlop, char szamolo, const char jel) {
-    if (szamolo == 0 && tabla[sor][oszlop] == jel && jel != '0')
-        return true;
-    if (szamolo == 0)
-        return false;
-    if (oszlop > 0 && sor < meret - 1 && tabla[sor][oszlop] == jel && jel != '0') {
-        return keresztBalNyer(tabla, meret, sor + 1 , oszlop - 1, szamolo - 1, jel);
+    if (sor >= 0 && sor < meret && oszlop >= 0 && oszlop < meret && tabla[sor][oszlop] == jel && jel != '0') {
+        return nyerEllenorzes(tabla, meret, sor + dSor, oszlop + dOszlop, szamolo - 1, jel, dSor, dOszlop);
     } else
         return false;
 }
 
 
-char nyerE(const char** tabla, const char meret) {
-    for (int i = 0; i < meret; ++i) {
-        for (int j = 0; j < meret; ++j) {
-            if (oszlopNyer(tabla, meret, i, j, nyeroMennyiseg(meret) - 1 , tabla[i][j]) ||
-                sorNyer(tabla, meret, i, j, nyeroMennyiseg(meret) - 1 , tabla[i][j]) ||
-                keresztJobbNyer(tabla, meret, i, j, nyeroMennyiseg(meret) - 1 , tabla[i][j]) ||
-                keresztBalNyer(tabla, meret, i, j, nyeroMennyiseg(meret) - 1 , tabla[i][j])) {
-                return tabla[i][j];
-            }
+char nyerE(char** tabla, const char meret) {
+    for (char i = 0; i < meret; ++i) {
+        for (char j = 0; j < meret; ++j) {
+            char jel = tabla[i][j];
+            if (jel != '0' &&
+                (nyerEllenorzes(tabla, meret, i, j, nyeroMennyiseg(meret) - 1, jel, 1, 0) ||   // Oszlop
+                 nyerEllenorzes(tabla, meret, i, j, nyeroMennyiseg(meret) - 1, jel, 0, 1) ||   // Sor
+                 nyerEllenorzes(tabla, meret, i, j, nyeroMennyiseg(meret) - 1, jel, 1, 1) ||   // Átló jobbra le
+                 nyerEllenorzes(tabla, meret, i, j, nyeroMennyiseg(meret) - 1, jel, 1, -1))) { // Átló balra le
+                return jel;
+                 }
         }
     }
     return -1;
 }
 
+
+
 int main(void) {
-    /*char** tabla = tablaInicializalas(20);
+    char** tabla = tablaInicializalas(20);
     jelBeir(tabla, 20, 13, 13, 'X');
     jelBeir(tabla, 20, 14, 14, 'X');
     jelBeir(tabla, 20, 15, 15, 'X');
@@ -136,7 +110,7 @@ int main(void) {
     jelBeir(tabla, 20, 17, 17, 'X');
     tablaKiir(tabla, 20);
     printf("%c", nyerE(tabla, 20));
-    tablaTorles(tabla, 20);*/
+    tablaTorles(tabla, 20);
 
 
     return 0;
